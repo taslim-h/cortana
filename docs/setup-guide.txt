@@ -1,0 +1,269 @@
+# Meeting Assistant Setup Guide
+
+## Prerequisites
+
+- Python 3.8 or higher
+- Node.js 14 or higher (for running the frontend)
+- MongoDB instance (local or cloud)
+- Firebase project
+- Google Cloud Platform project with Drive and Calendar APIs enabled
+
+## Backend Setup
+
+### 1. Install Dependencies
+
+```bash
+cd backend
+pip install -r requirements.txt
+```
+
+### 2. Environment Configuration
+
+Create a `.env` file in the backend directory:
+
+```env
+# MongoDB
+MONGODB_URL=mongodb://localhost:27017
+DATABASE_NAME=meeting_assistant
+
+# Firebase Admin SDK
+FIREBASE_PROJECT_ID=your-firebase-project-id
+FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+FIREBASE_CLIENT_EMAIL=firebase-adminsdk-xxxxx@your-project.iam.gserviceaccount.com
+
+# Google OAuth2
+GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+GOOGLE_REDIRECT_URI=http://localhost:8000/api/auth/google/callback
+
+# JWT Settings
+SECRET_KEY=your-secret-key-here-change-in-production
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=30
+```
+
+### 3. Firebase Setup
+
+1. Go to [Firebase Console](https://console.firebase.google.com/)
+2. Create a new project or select existing
+3. Enable Authentication:
+   - Go to Authentication > Sign-in method
+   - Enable Email/Password and Google providers
+4. Generate Service Account Key:
+   - Go to Project Settings > Service Accounts
+   - Click "Generate new private key"
+   - Download the JSON file
+   - Copy the values to your `.env` file
+
+### 4. Google Cloud Platform Setup
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a new project or select existing
+3. Enable APIs:
+   - Google Drive API
+   - Google Calendar API
+4. Create OAuth2 Credentials:
+   - Go to APIs & Services > Credentials
+   - Click "Create Credentials" > "OAuth client ID"
+   - Choose "Web application"
+   - Add authorized redirect URIs:
+     - `http://localhost:8000/api/auth/google/callback`
+     - `http://localhost:3000/drive-callback`
+     - `http://localhost:3000/calendar-callback`
+   - Copy Client ID and Client Secret to `.env`
+
+### 5. Run the Backend
+
+```bash
+cd backend
+uvicorn app.main:app --reload --port 8000
+```
+
+The API will be available at `http://localhost:8000`
+
+## Frontend Setup
+
+### 1. Update Firebase Configuration
+
+Edit `frontend/js/auth.js` and update the Firebase configuration:
+
+```javascript
+const firebaseConfig = {
+    apiKey: "your-api-key",
+    authDomain: "your-project.firebaseapp.com",
+    projectId: "your-project-id",
+    storageBucket: "your-project.appspot.com",
+    messagingSenderId: "your-sender-id",
+    appId: "your-app-id"
+};
+```
+
+You can find these values in Firebase Console > Project Settings > General > Your apps > Web app
+
+### 2. Serve the Frontend
+
+You can use any static file server. Here are a few options:
+
+Using Python:
+```bash
+cd frontend
+python -m http.server 3000
+```
+
+Using Node.js (install `http-server` globally first):
+```bash
+npm install -g http-server
+cd frontend
+http-server -p 3000
+```
+
+Using VS Code Live Server extension:
+- Install the "Live Server" extension
+- Right-click on `index.html`
+- Select "Open with Live Server"
+
+The frontend will be available at `http://localhost:3000`
+
+## MongoDB Setup
+
+### Local MongoDB
+
+1. Install MongoDB Community Edition from [mongodb.com](https://www.mongodb.com/try/download/community)
+2. Start MongoDB:
+   ```bash
+   # On macOS/Linux
+   mongod --dbpath /path/to/data/directory
+   
+   # On Windows
+   mongod.exe --dbpath C:\path\to\data\directory
+   ```
+
+### MongoDB Atlas (Cloud)
+
+1. Go to [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
+2. Create a free cluster
+3. Set up database user and whitelist IP
+4. Get connection string and update `MONGODB_URL` in `.env`
+
+## Testing the Application
+
+### 1. Register/Login
+
+1. Open `http://localhost:3000` in your browser
+2. Register a new account or sign in with Google
+3. You should see the main dashboard
+
+### 2. Create a Meeting
+
+1. Click the "+" button to create a new meeting
+2. Fill in the required fields:
+   - Meeting Title
+   - Start Time
+   - End Time
+3. Optionally add:
+   - Meeting Link (Google Meet or Zoom)
+   - Google Drive Folder Link
+   - Description
+
+### 3. Test Meeting Collision Detection
+
+1. Create a meeting from 10:00 AM to 11:00 AM
+2. Try to create another meeting from 10:30 AM to 11:30 AM
+3. You should see a collision warning
+
+### 4. Google Calendar Integration
+
+1. Click "Connect Calendar" in the right panel
+2. Authorize access to your Google Calendar
+3. Your upcoming events should appear
+
+### 5. Google Drive Integration
+
+1. Create a meeting with a Google Drive folder link
+2. When prompted, authorize access to Google Drive
+3. Click "View Folder" on the meeting card to see folder contents
+
+## Troubleshooting
+
+### Common Issues
+
+**Firebase Authentication Errors:**
+- Ensure Firebase configuration is correct
+- Check that Email/Password and Google auth are enabled
+- Verify the domain is authorized in Firebase Console
+
+**MongoDB Connection Errors:**
+- Ensure MongoDB is running
+- Check the connection string in `.env`
+- Verify network access for MongoDB Atlas
+
+**Google API Errors:**
+- Ensure APIs are enabled in Google Cloud Console
+- Check OAuth2 credentials and redirect URIs
+- Verify scopes are correctly set
+
+**CORS Errors:**
+- The backend is configured to allow all origins in development
+- For production, update CORS settings in `main.py`
+
+### Debugging Tips
+
+1. Check browser console for frontend errors
+2. Check backend terminal for API errors
+3. Use browser Network tab to inspect API requests
+4. MongoDB Compass can help debug database issues
+
+## Production Deployment
+
+### Backend Deployment
+
+1. Update environment variables for production
+2. Use a production ASGI server like Gunicorn:
+   ```bash
+   gunicorn app.main:app -w 4 -k uvicorn.workers.UvicornWorker
+   ```
+3. Set up reverse proxy with Nginx
+4. Use HTTPS with proper SSL certificates
+
+### Frontend Deployment
+
+1. Update API_URL in `utils.js` to production URL
+2. Update Firebase configuration for production
+3. Serve static files through CDN or web server
+4. Enable HTTPS
+
+### Security Considerations
+
+1. Use strong SECRET_KEY for JWT
+2. Implement rate limiting
+3. Use HTTPS everywhere
+4. Restrict CORS origins
+5. Validate all user inputs
+6. Keep dependencies updated
+
+## Additional Features for Future Milestones
+
+1. **Real-time Meeting Transcription**
+   - WebRTC integration for audio capture
+   - Speech-to-text API integration
+   - Real-time transcript display
+
+2. **Meeting Analytics**
+   - Participation tracking
+   - Meeting duration analytics
+   - Engagement metrics
+
+3. **Team Collaboration**
+   - Share meetings with team members
+   - Collaborative note-taking
+   - Action item tracking
+
+4. **Advanced Integrations**
+   - Slack notifications
+   - Email reminders
+   - Calendar sync for all providers
+
+5. **Mobile App**
+   - React Native or Flutter app
+   - Push notifications
+   - Offline support

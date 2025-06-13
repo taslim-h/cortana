@@ -1,0 +1,13 @@
+# .gitignore
+.env
+.venv/
+*.pyc
+__pycache__/
+node_modules/
+.DS_Store
+*.log
+.vscode/
+*.sqlite3
+*.pkl
+*.db
+# Add any other files/folders you want to ignore
