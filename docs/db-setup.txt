@@ -1,3 +1,4 @@
+Install mongodb and mongodbcampus
 1. create a connection in mongodb campus 
 then open mongodb shell
 
