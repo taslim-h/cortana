@@ -74,12 +74,17 @@ const meetingManager = {
                             Join Meeting
                         </a>
                     ` : ''}
-                    ${meeting.drive_folder_link ? `
+                    ${(meeting.drive_folder_id || meeting.drive_folder_link) ? `
                         <a href="#" onclick="driveManager.viewFolder('${meeting._id}'); return false;" class="meeting-link">
                             <span class="material-icons">folder</span>
-                            View Folder
+                            ${meeting.drive_folder_name || 'View Folder'}
                         </a>
-                    ` : ''}
+                    ` : `
+                        <a href="#" onclick="drivePicker.selectFolderForMeeting('${meeting._id}'); return false;" class="meeting-link">
+                            <span class="material-icons">create_new_folder</span>
+                            Add Drive Folder
+                        </a>
+                    `}
                 </div>
             </div>
         `).join('');
@@ -101,7 +106,6 @@ const meetingManager = {
                 document.getElementById('start-time').value = utils.formatDateForInput(meeting.start_time);
                 document.getElementById('end-time').value = utils.formatDateForInput(meeting.end_time);
                 document.getElementById('meeting-link').value = meeting.meeting_link || '';
-                document.getElementById('drive-folder').value = meeting.drive_folder_link || '';
                 document.getElementById('description').value = meeting.description || '';
             }
         } else {
@@ -128,7 +132,6 @@ const meetingManager = {
             start_time: document.getElementById('start-time').value,
             end_time: document.getElementById('end-time').value,
             meeting_link: document.getElementById('meeting-link').value || null,
-            drive_folder_link: document.getElementById('drive-folder').value || null,
             description: document.getElementById('description').value || null
         };
 
@@ -162,24 +165,9 @@ const meetingManager = {
 
             console.log('Meeting saved:', response);
 
-            closeMeetingModal(); // Call the global function, not this.closeMeetingModal
+            closeMeetingModal();
             await this.loadMeetings();
 
-            // If Google Drive link was provided, prompt for authorization
-            if (formData.drive_folder_link) {
-                // For new meetings OR if the link changed
-                const isNewMeeting = !currentMeetingId;
-                const linkChanged = currentMeetingId &&
-                    meetings.find(m => m._id === currentMeetingId)?.drive_folder_link !== formData.drive_folder_link;
-
-                if (isNewMeeting || linkChanged) {
-                    console.log('Drive link detected, prompting for authorization...');
-                    // Give a moment for the UI to update
-                    setTimeout(() => {
-                        driveManager.promptDriveAuth(response._id, formData.drive_folder_link);
-                    }, 500);
-                }
-            }
         } catch (error) {
             console.error('Save meeting error:', error);
             if (error.message.includes('conflict')) {

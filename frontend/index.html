@@ -143,14 +143,6 @@
               class="calendar-events"
               style="display: none"
             ></div>
-
-            <!-- <div
-              id="calendar-events"
-              class="calendar-events"
-              style="display: none"
-            > -->
-              <!-- Calendar events will be inserted here -->
-            </div>
           </div>
         </div>
       </div>
@@ -191,19 +183,6 @@
               id="meeting-link"
               placeholder="https://meet.google.com/..."
             />
-          </div>
-
-          <div class="form-group">
-            <label for="drive-folder">Google Drive Folder Link</label>
-            <input
-              type="url"
-              id="drive-folder"
-              placeholder="https://drive.google.com/..."
-            />
-            <small style="color: #666; display: block; margin-top: 4px">
-              You can link a folder from any Google account. You'll be prompted
-              to authorize access.
-            </small>
           </div>
 
           <div class="form-group">
@@ -253,12 +232,20 @@
       <div class="spinner"></div>
     </div>
 
+    <!-- Google API Configuration -->
+    <script>
+      // Replace these with your actual values from Google Cloud Console
+      const GOOGLE_CLIENT_ID = 'YOUR_CLIENT_ID.apps.googleusercontent.com';
+      const GOOGLE_API_KEY = 'AIzaSyCFhXSzxH5EWUxAZ2KoaGZsdkqiwxpfHLQ';
+    </script>
+
     <!-- Scripts -->
     <script src="js/utils.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/meetings.js"></script>
     <script src="js/calendar.js"></script>
     <script src="js/drive.js"></script>
+    <script src="js/drive-picker.js"></script>
     <script src="js/app.js"></script>
   </body>
 </html>

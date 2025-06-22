@@ -126,7 +126,7 @@ async def update_meeting(
         )
 
     # Check for collisions if time is being updated
-    update_dict = meeting_update.dict(exclude_unset=True)
+    update_dict = meeting_update.model_dump(exclude_unset=True)
 
     if "start_time" in update_dict or "end_time" in update_dict:
         start_time = update_dict.get(
