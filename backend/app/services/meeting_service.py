@@ -1,5 +1,5 @@
 # backend/app/services/meeting_service.py
-from app.services.mongodb import get_meetings_collection
+from app.services.mongodb import get_meetings_collection_async
 from datetime import datetime
 from typing import Optional
 from bson import ObjectId
@@ -12,7 +12,7 @@ async def check_meeting_collision(
     exclude_meeting_id: Optional[str] = None
 ) -> Optional[dict]:
     """Check if a meeting time conflicts with existing meetings"""
-    meetings_collection = get_meetings_collection()
+    meetings_collection = get_meetings_collection_async()
 
     # Build query
     query = {

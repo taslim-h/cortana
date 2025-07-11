@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from fastapi import APIRouter, HTTPException, status, Depends, Query
 from app.models.user import UserInDB
 from app.routes.auth import get_current_user
-from app.services.mongodb import get_users_collection
+from app.services.mongodb import get_users_collection_async
 from app.services.google_services import (
     get_google_auth_flow,
     get_credentials_from_token,
@@ -65,7 +65,7 @@ async def calendar_callback(
         }
 
         # Save tokens to user profile
-        users_collection = get_users_collection()
+        users_collection = get_users_collection_async()
         await users_collection.update_one(
             {"firebase_uid": current_user.firebase_uid},
             {
@@ -92,7 +92,7 @@ async def get_calendar_events(
     days: int = Query(default=7, ge=1, le=30)
 ):
     """Get calendar events for the next N days"""
-    users_collection = get_users_collection()
+    users_collection = get_users_collection_async()
     user = await users_collection.find_one({"firebase_uid": current_user.firebase_uid})
 
     if not user.get("google_tokens"):
@@ -163,7 +163,7 @@ async def get_calendar_tasks(
     current_user: UserInDB = Depends(get_current_user)
 ):
     """Get tasks from Google Tasks API"""
-    users_collection = get_users_collection()
+    users_collection = get_users_collection_async()
     user = await users_collection.find_one({"firebase_uid": current_user.firebase_uid})
 
     if not user.get("google_tokens"):
@@ -213,7 +213,7 @@ async def disconnect_calendar(
     current_user: UserInDB = Depends(get_current_user)
 ):
     """Disconnect Google Calendar integration"""
-    users_collection = get_users_collection()
+    users_collection = get_users_collection_async()
 
     await users_collection.update_one(
         {"firebase_uid": current_user.firebase_uid},

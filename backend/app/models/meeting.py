@@ -86,6 +86,8 @@ class MeetingInDB(MeetingBase):
         default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc))
+    drive_linked_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc))
     drive_access_token: Optional[dict] = None
 
     @field_validator('end_time')

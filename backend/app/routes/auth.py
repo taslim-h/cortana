@@ -1,7 +1,7 @@
 # backend/app/routes/auth.py
 from fastapi import APIRouter, HTTPException, status, Depends, Header
 from app.services.firebase_auth import verify_firebase_token, get_user_info
-from app.services.mongodb import get_users_collection
+from app.services.mongodb import get_users_collection_async
 from app.models.user import UserCreate, UserInDB
 from datetime import datetime, timezone
 from typing import Optional
@@ -27,7 +27,7 @@ async def get_current_user(authorization: Optional[str] = Header(None)):
     decoded_token = await verify_firebase_token(token)
 
     # Get or create user in MongoDB
-    users_collection = get_users_collection()
+    users_collection = get_users_collection_async()
     user = await users_collection.find_one({"firebase_uid": decoded_token["uid"]})
 
     if not user:
@@ -59,7 +59,7 @@ async def verify_token(request: TokenRequest):
         user_info = await get_user_info(decoded_token["uid"])
 
         # Get or create user in MongoDB
-        users_collection = get_users_collection()
+        users_collection = get_users_collection_async()
         user = await users_collection.find_one({"firebase_uid": user_info["uid"]})
 
         if not user:

@@ -1,3 +1,4 @@
+
 # # backend/app/routes/google_drive.py
 # from pydantic import BaseModel
 # from fastapi import APIRouter, HTTPException, status, Depends, Query
@@ -117,7 +118,9 @@
 #                     "drive_folder_name": request.folder_name,
 #                     "drive_folder_link": request.folder_url,  # Keep for compatibility
 #                     "drive_access_token": request.access_token,
-#                     "updated_at": datetime.now(timezone.utc)
+#                     "updated_at": datetime.now(timezone.utc),
+#                     "drive_linked_at": datetime.now(timezone.utc),
+#                     "indexing_status": "pending"
 #                 }
 #             }
 #         )
@@ -264,18 +267,18 @@
 
 #     return {"message": "Folder unlinked successfully"}
 
-# backend/app/routes/google_drive.py
 from pydantic import BaseModel
 from fastapi import APIRouter, HTTPException, status, Depends, Query
 from app.models.user import UserInDB
 from app.routes.auth import get_current_user
-from app.services.mongodb import get_meetings_collection
+from app.services.mongodb import get_meetings_collection_async
 from app.services.google_services import (
     get_google_auth_flow,
     get_credentials_from_token,
     get_drive_service,
     refresh_google_token
 )
+from app.services.indexing_service import link_drive  # Import to start indexer and use function
 from bson import ObjectId
 from datetime import datetime, timezone
 import re
@@ -298,7 +301,6 @@ async def authorize_drive(
     redirect_uri: str = Query(default=None)
 ):
     """Get Google Drive authorization URL for picker"""
-    # Support both old callback and new picker callback
     if not redirect_uri:
         redirect_uri = "http://localhost:3000/drive-picker-callback.html"
     
@@ -308,7 +310,7 @@ async def authorize_drive(
     auth_url, state = flow.authorization_url(
         access_type='offline',
         include_granted_scopes='true',
-        prompt='select_account consent',  # Force account selection
+        prompt='select_account consent',
         state=current_user.firebase_uid
     )
 
@@ -352,7 +354,7 @@ async def link_drive_folder(
     current_user: UserInDB = Depends(get_current_user)
 ):
     """Link Google Drive folder to a meeting using picker data"""
-    meetings_collection = get_meetings_collection()
+    meetings_collection = get_meetings_collection_async()
 
     if not ObjectId.is_valid(meeting_id):
         raise HTTPException(
@@ -371,8 +373,11 @@ async def link_drive_folder(
             fields="id,name,mimeType,webViewLink"
         ).execute()
 
-        # Update meeting with folder info
-        result = await meetings_collection.update_one(
+        # Use link_drive from indexing_service to trigger indexing
+        response = link_drive(meeting_id, request.access_token, current_user.firebase_uid)
+
+        # Update additional meeting fields
+        await meetings_collection.update_one(
             {
                 "_id": ObjectId(meeting_id),
                 "user_id": current_user.firebase_uid
@@ -381,18 +386,14 @@ async def link_drive_folder(
                 "$set": {
                     "drive_folder_id": request.folder_id,
                     "drive_folder_name": request.folder_name,
-                    "drive_folder_link": request.folder_url,  # Keep for compatibility
                     "drive_access_token": request.access_token,
-                    "updated_at": datetime.now(timezone.utc)
+                    "drive_folder_link": request.folder_url,
+                    "updated_at": datetime.now(timezone.utc),
+                    "drive_linked_at": datetime.now(timezone.utc),
+                    "indexing_status": "pending"
                 }
             }
         )
-
-        if result.matched_count == 0:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Meeting not found"
-            )
 
         return {
             "message": "Folder linked successfully",
@@ -415,7 +416,7 @@ async def get_folder_contents(
     current_user: UserInDB = Depends(get_current_user)
 ):
     """Get contents of linked Google Drive folder"""
-    meetings_collection = get_meetings_collection()
+    meetings_collection = get_meetings_collection_async()
 
     if not ObjectId.is_valid(meeting_id):
         raise HTTPException(
@@ -453,7 +454,6 @@ async def get_folder_contents(
         if credentials.expired and credentials.refresh_token:
             new_tokens = await refresh_google_token(credentials)
             if new_tokens:
-                # Update stored tokens
                 await meetings_collection.update_one(
                     {"_id": ObjectId(meeting_id)},
                     {"$set": {"drive_access_token": new_tokens}}
@@ -496,7 +496,7 @@ async def unlink_drive_folder(
     current_user: UserInDB = Depends(get_current_user)
 ):
     """Remove Google Drive folder from a meeting"""
-    meetings_collection = get_meetings_collection()
+    meetings_collection = get_meetings_collection_async()
 
     if not ObjectId.is_valid(meeting_id):
         raise HTTPException(

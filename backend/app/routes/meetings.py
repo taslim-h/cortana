@@ -3,7 +3,7 @@ from fastapi import APIRouter, HTTPException, status, Depends
 from app.models.meeting import MeetingCreate, MeetingUpdate, MeetingInDB
 from app.models.user import UserInDB
 from app.routes.auth import get_current_user
-from app.services.mongodb import get_meetings_collection
+from app.services.mongodb import get_meetings_collection_async
 from app.services.meeting_service import check_meeting_collision
 from typing import List
 from datetime import datetime, timezone
@@ -19,7 +19,7 @@ async def create_meeting(
     current_user: UserInDB = Depends(get_current_user)
 ):
     """Create a new meeting"""
-    meetings_collection = get_meetings_collection()
+    meetings_collection = get_meetings_collection_async()
 
     # Check for collisions
     collision = await check_meeting_collision(
@@ -60,7 +60,7 @@ async def get_meetings(
     limit: int = 100
 ):
     """Get all meetings for the current user"""
-    meetings_collection = get_meetings_collection()
+    meetings_collection = get_meetings_collection_async()
 
     cursor = meetings_collection.find(
         {"user_id": current_user.firebase_uid}
@@ -76,7 +76,7 @@ async def get_meeting(
     current_user: UserInDB = Depends(get_current_user)
 ):
     """Get a specific meeting"""
-    meetings_collection = get_meetings_collection()
+    meetings_collection = get_meetings_collection_async()
 
     if not ObjectId.is_valid(meeting_id):
         raise HTTPException(
@@ -105,7 +105,7 @@ async def update_meeting(
     current_user: UserInDB = Depends(get_current_user)
 ):
     """Update a meeting"""
-    meetings_collection = get_meetings_collection()
+    meetings_collection = get_meetings_collection_async()
 
     if not ObjectId.is_valid(meeting_id):
         raise HTTPException(
@@ -154,7 +154,7 @@ async def update_meeting(
             )
 
     # Update meeting
-    update_dict["updated_at"] = datetime.utcnow()
+    update_dict["updated_at"] = datetime.now(timezone.utc)
 
     await meetings_collection.update_one(
         {"_id": ObjectId(meeting_id)},
@@ -171,7 +171,7 @@ async def delete_meeting(
     current_user: UserInDB = Depends(get_current_user)
 ):
     """Delete a meeting"""
-    meetings_collection = get_meetings_collection()
+    meetings_collection = get_meetings_collection_async()
 
     if not ObjectId.is_valid(meeting_id):
         raise HTTPException(

@@ -1,0 +1,38 @@
+pagerank:
+
+
+<?php
+require_once 'mysql_func.php';
+
+$config_file = parse_ini_file("config.ini");
+$db = new MySql($config_file['servername'], $config_file['username'], $config_file['password'], $config_file['dbname']);
+
+function compute_pagerank($db, $iterations = 10, $damping = 0.85) {
+    $db->query("UPDATE url SET pageRank = 1.0 / (SELECT COUNT(*) FROM url)");
+    
+    for ($i = 0; $i < $iterations; $i++) {
+        $stmt = $db->query("SELECT id, pageRank FROM url");
+        $page_ranks = [];
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $page_ranks[$row['id']] = $row['pageRank'];
+        }
+
+        $stmt = $db->prepare("SELECT sourceUrl, destinationUrl FROM outgogurl WHERE sourceUrl = ?");
+        foreach ($page_ranks as $url_id => $pr) {
+            $outgoing = $db->query("SELECT COUNT(*) FROM outgogurl WHERE sourceUrl = $url_id")->fetchColumn();
+            $outgoing = max($outgoing, 1); // Avoid division by zero
+            $new_pr = (1 - $damping) / count($page_ranks);
+            
+            $stmt->execute([$url_id]);
+            while ($row = $stmt->fetch()) {
+                $dest_id = $row['destinationUrl'];
+                $new_pr += $damping * ($page_ranks[$url_id] / $outgoing);
+                $db->update_data(['pageRank' => $new_pr], ['id' => $dest_id], "url");
+            }
+        }
+    }
+}
+
+compute_pagerank($db);
+echo "PageRank computed.\n";
+?>
