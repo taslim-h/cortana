@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In - Meeting Assistant</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles/discord.css">
+</head>
+<body>
+    <div class="app-container">
+        <div class="sign-in-container">
+            <div class="sign-in-icon">
+                <i class="bi bi-person-circle"></i>
+            </div>
+            <h1 class="sign-in-title">Welcome to Meeting Assistant</h1>
+            <p class="sign-in-subtitle">
+                Sign in with your Google account to access your meetings<br>
+                and start chatting with our AI assistant
+            </p>
+            <button id="signInBtn" class="btn-discord">
+                <i class="bi bi-google"></i> Sign In with Google
+            </button>
+            <div id="authMessage" class="mt-3"></div>
+            
+            <div class="features-section" style="margin-top: 40px; text-align: left; max-width: 400px;">
+                <h3 style="color: var(--discord-white); font-size: 18px; margin-bottom: 16px;">Features:</h3>
+                <ul style="color: var(--discord-gray); font-size: 14px; line-height: 1.6;">
+                    <li>🗓️ View and manage your meetings</li>
+                    <li>🤖 Chat with AI about meeting content</li>
+                    <li>🎤 Voice messaging support</li>
+                    <li>💾 Persistent chat history</li>
+                    <li>🔒 Secure Google authentication</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <script src="js/utils/storage.js"></script>
+    <script src="js/utils/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            const signInBtn = document.getElementById('signInBtn');
+            const authMessage = document.getElementById('authMessage');
+            
+            // Initialize auth manager
+            await window.authManager.init();
+            
+            // Check if already signed in
+            if (window.authManager.isSignedIn()) {
+                window.location.href = 'popup.html';
+                return;
+            }
+            
+            // Handle sign in
+            signInBtn.addEventListener('click', async function() {
+                signInBtn.disabled = true;
+                signInBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Signing in...';
+                authMessage.innerHTML = '';
+                
+                const result = await window.authManager.signIn();
+                
+                if (result.success) {
+                    authMessage.innerHTML = '<div class="success-message">Signed in successfully! Redirecting...</div>';
+                    setTimeout(() => {
+                        window.location.href = 'popup.html';
+                    }, 1000);
+                } else {
+                    authMessage.innerHTML = `<div class="error-message">${result.error}</div>`;
+                    signInBtn.disabled = false;
+                    signInBtn.innerHTML = '<i class="bi bi-google"></i> Sign In with Google';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+{
+  "manifest_version": 3,
+  "name": "Firebase Auth Extension Dev",
+  "version": "1.0",
+  "description": "Chrome extension with Firebase Authentication",
+  "permissions": [
+    "identity",
+    "storage",
+    "offscreen"
+  ],
+  "host_permissions": [
+    "https://*.firebaseapp.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["offscreen.html"],
+      "matches": ["<all_urls>"]
+    }
+  ],
+  "oauth2": {
+    "client_id": "861153368527-3rab2n3mtb4lap88drn3ga3c9fb28osl.apps.googleusercontent.com",
+    "scopes": [
+      "openid", 
+      "email", 
+      "profile"
+    ]
+  }
+}

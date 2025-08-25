@@ -1,0 +1,74 @@
+body {
+  margin: 0;
+  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: #f8f9fa;
+}
+
+.sidebar {
+  width: 100px;
+  background-color: #007bff; /* Bootstrap primary blue */
+  border-right: 1px solid #005cbf;
+}
+
+.sidebar .btn {
+  width: 100%;
+  text-align: left;
+  padding: 10px;
+  font-size: 0.9rem;
+  transition: background-color 0.2s ease;
+}
+
+.sidebar .btn:hover,
+.sidebar .btn.active {
+  background-color: #005cbf; /* Darker blue on hover/active */
+}
+
+.main {
+  background-color: #f8f9fa; /* Light gray background */
+}
+
+#userInfo {
+  font-size: 0.85rem;
+  color: #6c757d; /* Bootstrap muted text */
+}
+
+.meeting-card {
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 10px 15px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
+}
+
+.meeting-card:hover {
+  transform: translateY(-2px);
+}
+
+#chatBox {
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.btn-primary {
+  background-color: #007bff;
+  border-color: #007bff;
+}
+
+.btn-primary:hover {
+  background-color: #005cbf;
+  border-color: #005cbf;
+}
+
+.btn-outline-primary {
+  color: #007bff;
+  border-color: #007bff;
+}
+
+.btn-outline-primary:hover {
+  background-color: #e6f0fa; /* Light blue hover */
+  color: #005cbf;
+}
+
+.content-section {
+  transition: opacity 0.3s ease;
+}
