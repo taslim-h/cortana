@@ -1,7 +1,7 @@
 # .gitignore
 .env
 .venv/
-.backend/temp_docs/
+backend/temp_docs/
 *.pyc
 __pycache__/
 node_modules/
