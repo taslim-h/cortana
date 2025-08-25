@@ -304,7 +304,10 @@ def save_drive_documents(drive_service, folder_id, meeting_id):
                 "application/vnd.openxmlformats-officedocument.wordprocessingml.document": ".docx",
                 "text/html": ".html",
                 "text/markdown": ".md",
-                "text/plain": ".txt"
+                "text/plain": ".txt",
+                "image/png": ".png",
+                "image/jpeg": ".jpg",
+                "video/mp4": ".mp4"
             }
             ext = mime_to_ext.get(file["mimeType"], None)
             if not ext:

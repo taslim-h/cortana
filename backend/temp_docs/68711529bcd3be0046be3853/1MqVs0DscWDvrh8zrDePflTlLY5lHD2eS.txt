@@ -1,9 +1,0 @@
-LangChain empowers developers to create language-model-driven applications that can intelligently retrieve and utilize external knowledge sources.
-
-It provides components like document loaders, semantic chunking tools, embedding integrations, and vector store support for building Retrieval-Augmented Generation (RAG) systems.
-
-For comprehensive guides and tutorials, refer to LangChain’s official documentation: https://docs.langchain.com
-
-This reference includes information on tools such as RecursiveCharacterTextSplitter, Pinecone integration, and how to optimize chunking strategies for better retrieval performance.
-
-https://bangladeshus.com/national-fruit-of-bangladesh-and-popular-fruits-list/
