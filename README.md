@@ -9,13 +9,13 @@
 
 **An intelligent meeting assistant with real-time transcription, RAG-powered insights, and seamless Google Workspace integration**
 
-[Features](#-features) " [Architecture](#-architecture) " [Installation](#-installation) " [Usage](#-usage) " [API Documentation](#-api-documentation) " [Contributing](#-contributing)
+[Features](#-features) • [Architecture](#-architecture) • [Installation](#-installation) • [Usage](#-usage) • [API Documentation](#-api-documentation) • [Contributing](#-contributing)
 
 </div>
 
 ---
 
-## =� Table of Contents
+## 📋 Table of Contents
 
 - [Overview](#-overview)
 - [Features](#-features)
@@ -38,7 +38,7 @@
 
 ---
 
-## <� Overview
+## 🎯 Overview
 
 **Cortana** is an advanced AI-powered meeting assistant designed to revolutionize how teams manage, document, and extract insights from meetings. By combining real-time transcription, semantic search, and intelligent document processing, Cortana provides contextual answers and comprehensive meeting summaries through a Retrieval-Augmented Generation (RAG) system.
 
@@ -53,7 +53,7 @@
 
 ---
 
-## ( Features
+## ✨ Features
 
 ### = User Management
 - **Multi-user Support**: Secure user registration and authentication
@@ -62,7 +62,7 @@
   - Google Sign-In (OAuth 2.0)
 - **Authorization**: JWT-based secure API access with HTTP header validation
 
-### =� Meeting Scheduling & Management
+### 📅 Meeting Scheduling & Management
 - **Flexible Scheduling**:
   - Set meeting date, time, and duration
   - Add Google Meet links (immediately or later)
@@ -86,7 +86,7 @@
   - Optimized chunking for minimal latency (8-50 words per chunk)
   - Automatic vectorization and Pinecone upload
 
-### =� Document Processing & RAG
+### 📁 Document Processing & RAG
 - **Multi-format Support**: `.txt`, `.docx`, `.py`, `.md`, images, videos, PDFs
 - **Google Drive Integration**:
   - Automatic file fetching from linked folders
@@ -101,7 +101,7 @@
   - Document-based context enhancement
   - Multi-source information synthesis
 
-### >� Chrome Extension
+### 🧩 Chrome Extension
 - **Meeting Dashboard**: View all user meetings in one place
 - **RAG Chat Interface**:
   - Query meeting metadata
@@ -121,7 +121,7 @@
 
 ---
 
-## <� Architecture
+## <→ Architecture
 
 ### System Architecture Overview
 
